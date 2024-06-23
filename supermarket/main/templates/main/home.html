@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Главная{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Каталог товаров</h2>
+    <div class="filters">
+        <form method="get" action="{% url 'home' %}">
+            <input type="text" name="search" placeholder="Поиск по названию" value="{{ search_query }}">
+            <button type="submit" class="button">Поиск</button>
+            {% if search_query %}
+            <a href="{% url 'home' %}" class="button">Сбросить</a>
+            {% endif %}
+        </form>
+    </div>
+    <div class="product-catalog">
+        {% for category, products in categories %}
+            <h3>{{ category.name }}</h3>
+            <div class="product-list">
+                {% for product in products %}
+                    <div class="product-item">
+                        <h4>{{ product.name }}</h4>
+                        <p>{{ product.description }}</p>
+                        <p>Цена: {{ product.price }} руб.</p>
+                        <button class="add-to-cart-button" onclick="addToCart({{ product.id }})">🛒 В корзину</button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    function addToCart(productId) {
+        fetch(`{% url 'add_to_cart' product_id=0 %}`.replace('0', productId), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ quantity: 1 })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Товар добавлен в корзину');
+            }
+        });
+    }
+</script>
+{% endblock %}

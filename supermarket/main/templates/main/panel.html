@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Панель управления{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Добро пожаловать, {{ user.username }}</h2>
+    <div class="panel-buttons">
+        {% if user.role != 'customer' %}
+            <div class="button-table">
+                <a href="{% url 'product_list' %}" class="button">Управление товарами</a>
+                <a href="{% url 'supplier_list' %}" class="button">Управление поставщиками</a>
+                <a href="{% url 'purchase_list' %}" class="button">Управление закупками</a>
+                <a href="{% url 'sale_list' %}" class="button">Управление продажами</a>
+                <a href="{% url 'order_list' %}" class="button">Управление заказами</a>
+                <a href="{% url 'report_sales' %}" class="button">Отчеты по продажам</a>
+                <a href="{% url 'report_purchases' %}" class="button">Отчеты по закупкам</a>
+                <a href="{% url 'report_orders' %}" class="button">Отчеты по заказам</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

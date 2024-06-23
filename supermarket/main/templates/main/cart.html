@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}Корзина{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Ваша корзина</h2>
+    {% if cart.items.count == 0 %}
+    <p>Ваша корзина пуста</p>
+    {% else %}
+    <ul class="cart-items">
+        {% for item in cart.items.all %}
+        <li class="cart-item">
+            <div class="item-info">
+                <h4>{{ item.product.name }}</h4>
+                <p>Цена: {{ item.product.price }} руб.</p>
+                <label for="quantity_{{ item.id }}">Количество:</label>
+                <input type="number" id="quantity_{{ item.id }}" name="quantity" value="{{ item.quantity }}" min="1" class="quantity-input" data-id="{{ item.id }}">
+            </div>
+            <div class="item-actions">
+                <button class="button remove-button" data-id="{{ item.id }}">Удалить</button>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    <div class="cart-total">
+        <h3>Итого: <span id="cart-total">{{ cart.total_price|floatformat:2 }}</span> руб.</h3>
+    </div>
+    <div class="cart-actions">
+        <a href="{% url 'checkout' %}" class="button">Оформить заказ</a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.remove-button').forEach(button => {
+        button.addEventListener('click', function() {
+            const itemId = this.dataset.id;
+            fetch(`/cart/remove/${itemId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.reload(); // Перезагрузка страницы после удаления
+                }
+            });
+        });
+    });
+
+    document.querySelectorAll('.quantity-input').forEach(input => {
+        input.addEventListener('change', function() {
+            const itemId = this.dataset.id;
+            const newQuantity = this.value;
+            fetch(`/cart/update/${itemId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ quantity: newQuantity })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('cart-total').textContent = (data.cart_total).toFixed(2) + ' руб.';
+                }
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

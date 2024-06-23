@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Оформление заказа{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Оформление заказа</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="button">Оформить заказ</button>
+    </form>
+    <div class="cart-total">
+        <h3>Итого: {{ cart.total_price }} руб.</h3>
+    </div>
+</div>
+{% endblock %}

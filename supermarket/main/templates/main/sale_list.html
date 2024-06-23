@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Управление продажами{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <a href="{% url 'panel' %}" class="button-back">⬅️ Назад</a>
+    <h2 class="page-title">Управление продажами</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Товар</th>
+                <th>Количество</th>
+                <th>Цена</th>
+                <th>Общая цена</th>
+                <th>Дата</th>
+                <th>Кассир</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sale in sales %}
+                <tr>
+                    <td>{{ sale.product.name }}</td>
+                    <td>{{ sale.quantity }}</td>
+                    <td>{{ sale.price }}</td>
+                    <td>{{ sale.total_price }}</td>
+                    <td>{{ sale.date }}</td>
+                    <td>{{ sale.cashier.username }}</td>
+                    <td>
+                        <a href="{% url 'edit_sale' sale.pk %}">✏️</a>
+                        <a href="{% url 'delete_sale' sale.pk %}">🗑️</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{% url 'add_sale' %}" class="button">Добавить продажу</a>
+</div>
+{% endblock %}

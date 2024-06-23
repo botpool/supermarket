@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}Добавить/Редактировать поставщика{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h2>{% if form.instance.pk %}Редактировать{% else %}Добавить{% endif %} поставщика</h2>
+    {% if form.errors %}
+    <div class="error-message">
+        Пожалуйста, исправьте ошибки ниже.
+    </div>
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="{% if form.instance.pk %}Сохранить{% else %}Добавить{% endif %}">
+    </form>
+    <a href="{% url 'supplier_list' %}" class="button">Назад к списку</a>
+</div>
+{% endblock %}

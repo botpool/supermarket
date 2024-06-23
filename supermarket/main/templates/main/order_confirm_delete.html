@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Подтвердить удаление{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <a href="{% url 'order_list' %}" class="button-back">⬅️ Назад</a>
+    <h2 class="page-title">Подтвердить удаление</h2>
+    <p>Вы уверены, что хотите удалить этот заказ?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="button">Удалить</button>
+        <a href="{% url 'order_list' %}" class="button">Отмена</a>
+    </form>
+</div>
+{% endblock %}

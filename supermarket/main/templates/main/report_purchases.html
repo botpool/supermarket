@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}Отчеты по закупкам{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <a href="{% url 'panel' %}" class="button-back">⬅️ Назад</a>
+    <h2 class="page-title">Отчеты по закупкам</h2>
+    {% for date, purchases in purchases_by_date.items %}
+        <h3>{{ date }}</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Дата</th>
+                    <th>Поставщик</th>
+                    <th>Товар</th>
+                    <th>Количество</th>
+                    <th>Цена за единицу</th>
+                    <th>Общая стоимость</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for purchase in purchases %}
+                    <tr>
+                        <td>{{ purchase.date }}</td>
+                        <td>{{ purchase.supplier.name }}</td>
+                        <td>{{ purchase.product.name }}</td>
+                        <td>{{ purchase.quantity }}</td>
+                        <td>{{ purchase.price|floatformat:2 }}</td>
+                        <td>{{ purchase.total_cost|floatformat:2 }}</td>
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <td colspan="5"><strong>Итого:</strong></td>
+                    <td><strong>{{ totals_by_date|dict_key:date|floatformat:2 }}</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    {% endfor %}
+</div>
+{% endblock %}

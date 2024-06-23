@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Каталог товаров{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Каталог товаров</h2>
+    <form method="GET" action="{% url 'product_catalog' %}">
+        <input type="text" name="q" placeholder="Поиск..." value="{{ query }}">
+        <button type="submit">Поиск</button>
+        <a href="{% url 'product_catalog' %}" class="button">Сбросить поиск</a>
+    </form>
+    <div class="product-catalog">
+        {% for category in categories %}
+            {% if category.product_set.count > 0 %}
+                <div class="category">
+                    <h3>{{ category.name }}</h3>
+                    <div class="product-list">
+                        {% for product in products %}
+                            {% if product.category == category %}
+                                <div class="product-item">
+                                    <h4>{{ product.name }}</h4>
+                                    <p>Цена: {{ product.price }} руб.</p>
+                                    <button class="add-to-cart-button" data-product-id="{{ product.id }}">🛒 В корзину</button>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.add-to-cart-button').forEach(button => {
+        button.addEventListener('click', function() {
+            const productId = this.dataset.productId;
+            fetch(`/cart/add/${productId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Товар добавлен в корзину!');
+                }
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

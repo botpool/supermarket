@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Недостаточно прав</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .container h1 {
+            color: #4b0082;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Недостаточно прав</h1>
+        <p>У вас недостаточно прав для просмотра данной страницы.</p>
+        <a href="{% url 'home' %}">Вернуться на главную</a>
+    </div>
+</body>
+</html>

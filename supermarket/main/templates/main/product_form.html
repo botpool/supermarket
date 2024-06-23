@@ -1,0 +1,254 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Добавить/Изменить товар{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>{% if form.instance.pk %}Изменить товар{% else %}Добавить товар{% endif %}</h2>
+    <form method="post" id="productForm">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="button">Сохранить</button>
+    </form>
+    <button type="button" class="button" onclick="openCategoryModal()">Управление категориями</button>
+</div>
+
+<!-- Модальное окно для управления категориями -->
+<div id="categoryModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeCategoryModal()">&times;</span>
+        <h2>Управление категориями</h2>
+        <form id="categoryForm">
+            <input type="hidden" id="categoryId">
+            <div class="form-group">
+                <label for="categoryName">Название категории:</label>
+                <input type="text" id="categoryName" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="categoryDescription">Описание категории:</label>
+                <textarea id="categoryDescription" class="form-control"></textarea>
+            </div>
+            <button type="button" class="button" onclick="saveCategory()">Сохранить</button>
+        </form>
+        <div id="categoryList" class="category-list"></div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const categoryModal = document.getElementById('categoryModal');
+        const categoryForm = document.getElementById('categoryForm');
+        const categoryList = document.getElementById('categoryList');
+        const categorySelect = document.querySelector('select[name="category"]'); // Получаем выпадающее меню категорий
+
+        window.openCategoryModal = function() {
+            categoryModal.style.display = 'block';
+            loadCategories();
+        }
+
+        window.closeCategoryModal = function() {
+            categoryModal.style.display = 'none';
+            clearCategoryForm();
+        }
+
+        window.saveCategory = function() {
+            const categoryId = document.getElementById('categoryId').value;
+            const categoryName = document.getElementById('categoryName').value;
+            const categoryDescription = document.getElementById('categoryDescription').value;
+            const action = categoryId ? 'edit' : 'add';
+            fetch(`{% url "manage_categories" %}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    action: action,
+                    category_id: categoryId,
+                    name: categoryName,
+                    description: categoryDescription
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadCategories();
+                    clearCategoryForm();
+                    closeCategoryModal();
+                    updateCategorySelect(); // Обновляем выпадающее меню категорий
+                }
+            });
+        }
+
+        function clearCategoryForm() {
+            document.getElementById('categoryId').value = '';
+            document.getElementById('categoryName').value = '';
+            document.getElementById('categoryDescription').value = '';
+        }
+
+        function loadCategories() {
+            fetch('{% url "manage_categories" %}')
+                .then(response => response.json())
+                .then(data => {
+                    categoryList.innerHTML = '';
+                    data.categories.forEach(category => {
+                        const div = document.createElement('div');
+                        div.classList.add('category-item');
+                        div.innerHTML = `
+                            <p>${category.name}</p>
+                            <div class="button-container">
+                                <button class="edit-button button" data-id="${category.id}">Редактировать</button>
+                                <button class="delete-button button" data-id="${category.id}">Удалить</button>
+                            </div>
+                        `;
+                        categoryList.appendChild(div);
+                    });
+                    attachCategoryActions();
+                });
+        }
+
+        function attachCategoryActions() {
+            document.querySelectorAll('.edit-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const categoryId = this.dataset.id;
+                    fetch(`{% url "manage_categories" %}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: JSON.stringify({ action: 'get', category_id: categoryId })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('categoryId').value = data.id;
+                        document.getElementById('categoryName').value = data.name;
+                        document.getElementById('categoryDescription').value = data.description;
+                    });
+                });
+            });
+
+            document.querySelectorAll('.delete-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const categoryId = this.dataset.id;
+                    fetch(`{% url "manage_categories" %}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: JSON.stringify({ action: 'delete', category_id: categoryId })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            loadCategories();
+                            updateCategorySelect(); // Обновляем выпадающее меню категорий
+                        }
+                    });
+                });
+            });
+        }
+
+        function updateCategorySelect() {
+            fetch('{% url "manage_categories" %}')
+                .then(response => response.json())
+                .then(data => {
+                    categorySelect.innerHTML = ''; // Очистить текущее содержимое выпадающего меню
+                    data.categories.forEach(category => {
+                        const option = document.createElement('option');
+                        option.value = category.id;
+                        option.textContent = category.name;
+                        categorySelect.appendChild(option);
+                    });
+                });
+        }
+
+        document.getElementById('categoryForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            saveCategory();
+        });
+
+        document.getElementById('openCategoryModal').addEventListener('click', openCategoryModal);
+        document.getElementById('closeCategoryModal').addEventListener('click', closeCategoryModal);
+    });
+</script>
+
+<style>
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0,0.4);
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 600px;
+    }
+
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+    }
+
+    .category-list .category-item {
+        padding: 10px;
+        border: 1px solid #ddd;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .category-list .category-item p {
+        margin: 0;
+        flex-grow: 1;
+    }
+
+    .button-container {
+        display: flex;
+        gap: 10px;
+    }
+
+    .category-list .button {
+        margin-left: 10px;
+    }
+</style>
+{% endblock %}

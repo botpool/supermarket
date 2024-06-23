@@ -1,0 +1,28 @@
+<!-- templates/main/category_modal.html -->
+<div class="modal" id="categoryModal">
+    <div class="modal-content">
+        <span class="close" id="closeCategoryModal">&times;</span>
+        <h2>Управление категориями</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Название</th>
+                    <th>Описание</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody id="categoryTableBody">
+                <!-- Здесь будут добавлены существующие категории через JavaScript -->
+            </tbody>
+        </table>
+        <h3>Добавить/Редактировать категорию</h3>
+        <form id="categoryForm">
+            <input type="hidden" id="categoryId">
+            <label for="categoryName">Название:</label>
+            <input type="text" id="categoryName" required>
+            <label for="categoryDescription">Описание:</label>
+            <textarea id="categoryDescription" required></textarea>
+            <button type="submit">Сохранить</button>
+        </form>
+    </div>
+</div>

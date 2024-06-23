@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Добавить закупку{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <a href="{% url 'purchase_list' %}" class="button-back">⬅️ Назад</a>
+    <h2 class="page-title">Добавить закупку</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="button">Сохранить</button>
+    </form>
+</div>
+
+<script>
+    $(function() {
+        $("input[type='text'][name$='date']").datepicker({
+            dateFormat: "yy-mm-dd"
+        });
+    });
+</script>
+{% endblock %}

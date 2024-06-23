@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Подтверждение заказа{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Спасибо за ваш заказ!</h2>
+    <p>Ваш заказ №{{ order.id }} был успешно оформлен.</p>
+    <p>Общая сумма заказа: {{ order.total_price }} руб.</p>
+</div>
+{% endblock %}

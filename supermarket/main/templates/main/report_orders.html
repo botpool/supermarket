@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}Отчёты по заказам{% endblock %}
+
+{% block content %}
+<div class="container">
+    <a href="{% url 'panel' %}" class="button-back">⬅️ Назад</a>
+    <h2>Отчёты по заказам</h2>
+    <div class="report-container">
+        {% for date, orders in orders_by_date.items %}
+        <h3>{{ date }}</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Клиент</th>
+                    <th>Товары</th>
+                    <th>Общая цена</th>
+                    <th>Статус</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>{{ order.customer.username }}</td>
+                    <td>
+                        <ul>
+                            {% for item in order.items.all %}
+                            <li>{{ item.product.name }} ({{ item.quantity }} x {{ item.price }} руб.)</li>
+                            {% endfor %}
+                        </ul>
+                    </td>
+                    <td>{{ order.total_price }}</td>
+                    <td>{{ order.get_status_display }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th colspan="2">Итого:</th>
+                    <th>{{ totals_by_date|get_value:date }}</th>
+                    <th></th>
+                </tr>
+            </tfoot>
+        </table>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
